@@ -18,11 +18,8 @@ if not os.path.exists(root):
     os.mkdir(root)
 
 
-transform_default = transforms.Compose([
-    transforms.ToTensor(),
-])
-train_set = MovingMNIST(root='.data/mnist', train=True, download=True, transform=transform_default)
-test_set = MovingMNIST(root='.data/mnist', train=False, download=True, transform=transform_default)
+train_set = MovingMNIST(root='.data/mnist', train=True, download=True)
+test_set = MovingMNIST(root='.data/mnist', train=False, download=True)
 
 batch_size = 100
 
