@@ -42,7 +42,6 @@ class MovingMNIST(data.Dataset):
         self.split = split
         self.train = train  # training set or test set
 
-
         if download:
             self.download()
 
@@ -66,21 +65,23 @@ class MovingMNIST(data.Dataset):
             tuple: (seq, target) where sampled sequences are splitted into a seq
                     and target part
         """
+
+        # need to iterate over time
+        def _transform_time(data):
+            new_data = None
+            for i in range(data.size(0)):
+                img = Image.fromarray(data[i].numpy(), mode='L')
+                new_data = self.transform(img) if new_data is None else torch.cat([self.transform(img), new_data], dim=0)
+
         if self.train:
             seq, target = self.train_data[index, :10], self.train_data[index, 10:]
         else:
             seq, target = self.test_data[index, :10], self.test_data[index, 10:]
 
-        # doing this so that it is consistent with all other datasets
-        # to return a PIL Image
-        # seq = Image.fromarray(seq.numpy(), mode='L')
-        # target = Image.fromarray(target.numpy(), mode='L')
-
-        # if self.transform is not None:
-        #     seq = self.transform(seq)
-
-        # if self.target_transform is not None:
-        #     target = self.target_transform(target)
+        if self.transform is not None:
+            seq = _transform_time(seq)
+        if self.target_transform is not None:
+            target = _transform_time(target)
 
         return seq, target
 
@@ -152,7 +153,3 @@ class MovingMNIST(data.Dataset):
         tmp = '    Target Transforms (if any): '
         fmt_str += '{0}{1}'.format(tmp, self.target_transform.__repr__().replace('\n', '\n' + ' ' * len(tmp)))
         return fmt_str
-
-
-
-
